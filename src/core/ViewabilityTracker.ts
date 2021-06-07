@@ -306,7 +306,22 @@ export default class ViewabilityTracker {
     }
 
     private _itemIntersectsVisibleWindow(startBound: number, endBound: number): boolean {
-        return this._itemIntersectsWindow(this._visibleWindow, startBound, endBound);
+        const intersectsVisibleWindow = this._itemIntersectsWindow(this._visibleWindow, startBound, endBound);
+
+        if (this._viewabilityConfig && this._viewabilityConfig.itemVisiblePercentThreshold && intersectsVisibleWindow) {
+            // compute if enough of the element is visible to satisfy itemVisiblePercentThreshold
+            const itemHeight = endBound - startBound;
+            if (itemHeight === 0) {
+                // not sure if this ever happens, based on this._isZeroHeightEdgeElement sounds like it might
+                // which i think would have returned true here
+                return true;
+            }
+            const pixelsVisible = Math.min(this._visibleWindow.end, endBound) - Math.max(this._visibleWindow.start, startBound);
+            const percentVisible = pixelsVisible / itemHeight * 100;
+            return percentVisible >= this._viewabilityConfig.itemVisiblePercentThreshold;
+        } else {
+            return intersectsVisibleWindow;
+        }
     }
 
     private _updateTrackingWindows(offset: number, correction: WindowCorrection): void {
