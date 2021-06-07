@@ -3,7 +3,7 @@ import { Dimension, BaseLayoutProvider } from "./dependencies/LayoutProvider";
 import CustomError from "./exceptions/CustomError";
 import RecyclerListViewExceptions from "./exceptions/RecyclerListViewExceptions";
 import { Point, LayoutManager } from "./layoutmanager/LayoutManager";
-import ViewabilityTracker, { TOnItemStatusChanged, WindowCorrection } from "./ViewabilityTracker";
+import ViewabilityTracker, {TOnItemStatusChanged, ViewabilityConfig, WindowCorrection} from "./ViewabilityTracker";
 import { ObjectUtil, Default } from "ts-object-utils";
 import TSCast from "../utils/TSCast";
 import { BaseDataProvider } from "./dependencies/DataProvider";
@@ -26,6 +26,7 @@ export interface RenderStackParams {
     initialOffset?: number;
     initialRenderIndex?: number;
     renderAheadOffset?: number;
+    viewabilityConfig?: ViewabilityConfig;
 }
 
 export type StableIdProvider = (index: number) => string;
@@ -189,7 +190,8 @@ export default class VirtualRenderer {
         if (this._params) {
             this._viewabilityTracker = new ViewabilityTracker(
                 Default.value<number>(this._params.renderAheadOffset, 0),
-                Default.value<number>(this._params.initialOffset, 0));
+                Default.value<number>(this._params.initialOffset, 0),
+                this._params.viewabilityConfig);
         } else {
             this._viewabilityTracker = new ViewabilityTracker(0, 0);
         }

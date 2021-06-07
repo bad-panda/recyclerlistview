@@ -32,8 +32,8 @@ import { Constants } from "./constants/Constants";
 import { Messages } from "./constants/Messages";
 import BaseScrollComponent from "./scrollcomponent/BaseScrollComponent";
 import BaseScrollView, { ScrollEvent, ScrollViewDefaultProps } from "./scrollcomponent/BaseScrollView";
-import { TOnItemStatusChanged, WindowCorrection } from "./ViewabilityTracker";
-import VirtualRenderer, { RenderStack, RenderStackItem, RenderStackParams } from "./VirtualRenderer";
+import { TOnItemStatusChanged, WindowCorrection, ViewabilityConfig } from "./ViewabilityTracker";
+import VirtualRenderer, {RenderStack, RenderStackItem, RenderStackParams } from "./VirtualRenderer";
 import ItemAnimator, { BaseItemAnimator } from "./ItemAnimator";
 import { DebugHandlers } from "..";
 import { ComponentCompat } from "../utils/ComponentCompat";
@@ -110,6 +110,7 @@ export interface RecyclerListViewProps {
     scrollViewProps?: object;
     applyWindowCorrection?: (offsetX: number, offsetY: number, windowCorrection: WindowCorrection) => void;
     onItemLayout?: (index: number) => void;
+    viewabilityConfig?: ViewabilityConfig;
 }
 
 export interface RecyclerListViewState {
@@ -438,6 +439,7 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
     private _checkAndChangeLayouts(newProps: RecyclerListViewProps, forceFullRender?: boolean): void {
         this._params.isHorizontal = newProps.isHorizontal;
         this._params.itemCount = newProps.dataProvider.getSize();
+        this._params.viewabilityConfig = newProps.viewabilityConfig;
         this._virtualRenderer.setParamsAndDimensions(this._params, this._layout);
         this._virtualRenderer.setLayoutProvider(newProps.layoutProvider);
         if (newProps.dataProvider.hasStableIds() && this.props.dataProvider !== newProps.dataProvider && newProps.dataProvider.requiresDataChangeHandling()) {
@@ -558,6 +560,7 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
             isHorizontal: props.isHorizontal,
             itemCount: props.dataProvider.getSize(),
             renderAheadOffset: props.renderAheadOffset,
+            viewabilityConfig: props.viewabilityConfig,
         };
         this._virtualRenderer.setParamsAndDimensions(this._params, this._layout);
         const layoutManager = props.layoutProvider.newLayoutManager(this._layout, props.isHorizontal, this._cachedLayouts);

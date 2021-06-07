@@ -19,6 +19,10 @@ export interface WindowCorrection {
     endCorrection: number;
 }
 
+export interface ViewabilityConfig {
+    itemVisiblePercentThreshold?: number;
+}
+
 export type TOnItemStatusChanged = ((all: number[], now: number[], notNow: number[]) => void);
 
 export default class ViewabilityTracker {
@@ -38,8 +42,9 @@ export default class ViewabilityTracker {
     private _layouts: Layout[] = [];
     private _actualOffset: number;
     private _defaultCorrection: WindowCorrection;
+    private _viewabilityConfig?: ViewabilityConfig;
 
-    constructor(renderAheadOffset: number, initialOffset: number) {
+    constructor(renderAheadOffset: number, initialOffset: number, viewabilityConfig?: ViewabilityConfig) {
         this._currentOffset = Math.max(0, initialOffset);
         this._maxOffset = 0;
         this._actualOffset = 0;
@@ -58,6 +63,9 @@ export default class ViewabilityTracker {
 
         this._relevantDim = { start: 0, end: 0 };
         this._defaultCorrection = { startCorrection: 0, endCorrection: 0, windowShift: 0 };
+
+        this._viewabilityConfig = viewabilityConfig;
+        console.log('ViewabilityTracker - constructed with viewabilityConfig:', viewabilityConfig); //tslint:disable-line
     }
 
     public init(windowCorrection: WindowCorrection): void {
